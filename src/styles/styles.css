@@ -1,0 +1,31 @@
+@import url('_fonts.css');
+@import url('switch.css');
+
+body {
+    font-family: 'MuseoSansRegular';
+    background-color: #F5F5F5;
+    font-size: 16px;
+    color: black;
+    font-weight: 500;
+    margin: 0;
+    padding: 0;
+}
+
+
+.ymaps-2-1-53-balloon,
+.ymaps-2-1-53-balloon__tail,
+.ymaps-2-1-53-balloon__content,
+.ymaps-2-1-53-balloon__layout {
+    border-radius: 5px;
+}
+
+
+@media (max-width: 500px) {
+
+    .ymaps-2-1-53-balloon,
+    .ymaps-2-1-53-balloon__tail,
+    .ymaps-2-1-53-balloon__content,
+    .ymaps-2-1-53-balloon__layout {
+        border-radius: 0;
+    }
+}
