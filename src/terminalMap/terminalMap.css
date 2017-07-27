@@ -63,13 +63,13 @@
     vertical-align: middle;
 }
 .qiwi-terminal-icon {
-    background-image: url('../assets/qiwi-terminal-icon.svg');
+    background-image: url('./assets/qiwi-terminal-icon.svg');
     height: 24px;
     width: 23px;
 }
 
 .partners-terminal-icon {
-    background-image: url('../assets/partners-terminal-icon.svg');
+    background-image: url('./assets/partners-terminal-icon.svg');
     height: 16px;
     width: 24px;
 }
