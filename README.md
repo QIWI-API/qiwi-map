@@ -14,3 +14,5 @@ npm start
 ## Документация по открытому API
 <a href="https://developer.qiwi.com/qiwi-map/qiwi-map_ru.html">Подробнее</a>
 
+ <img src="https://developer.qiwi.com/qiwi-map/images/qiwi-map.png"/>
+
