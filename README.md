@@ -1,9 +1,9 @@
-# qiwi-map 
-
-##  JS приложение карты терминалов QIWI
+#  JS приложение карты терминалов QIWI
 Приложение позволяет установить месторасположение партнерских термниалов и терминалов QIWI
 
-## Сборка приложения 
+<img src="https://developer.qiwi.com/qiwi-map/images/qiwi-map.png"/>
+
+### Сборка приложения 
 ~~~shell
 git clone https://github.com/QIWI-API/qiwi-map-application.git
 cd qiwi-map
@@ -17,8 +17,12 @@ npm run build
 Приложение является набором статических файлов исполняемых на клиенте. 
 Достаточно разместить содержимое каталога на сервере и добавить путь до файла index.html.  
 
-## Документация по открытому API
-<a href="https://developer.qiwi.com/qiwi-map/qiwi-map_ru.html">Подробнее</a>
+### Пример использования
+~~~html
+<iframe src="https://www.your-site.com/path-to-map-index" width="100%" height="780" style="border:none;"></iframe>
+~~~
 
- <img src="https://developer.qiwi.com/qiwi-map/images/qiwi-map.png"/>
+## Документация
+- [**API Карты терминалов QIWI**](https://developer.qiwi.com/qiwi-map/qiwi-map_ru.html): Описание API для установки местонахождения терминалов QIWI на территории РФ
 
+ 
