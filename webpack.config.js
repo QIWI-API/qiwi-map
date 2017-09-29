@@ -8,7 +8,6 @@ module.exports = {
     entry: ['babel-polyfill','whatwg-fetch','url-search-params','./src/main.js'],
     output: {
         filename: 'bundle.js',
-        publicPath: '/',
         path: path.resolve(__dirname, 'dist')
     },
     module: {
