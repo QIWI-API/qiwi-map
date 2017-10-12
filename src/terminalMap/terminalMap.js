@@ -91,15 +91,72 @@ export default class terminalMap {
         });
     }
 
-    _makePlacemarks(points) {
+    _makePlacemark(point) {
 
-        const  getPointData = ({ id, type, address}) => {
+        const coords = [point.coordinate['latitude'], point.coordinate['longitude']];
 
+        const data = {
+            id: point.terminalId,
+            type: point.ttpId,
+            address: point.address
+        };
+
+        let placemark = {};
+
+        if(point.count > 1) {
+
+            let count = point.count;
+
+            let clusterIcons = {
+                iconLayout: 'default#image',
+                // Своё изображение иконки метки.
+                iconImageHref: clusterIcon,
+                // Размеры метки.
+                iconImageSize: [40, 40],
+                // Смещение левого верхнего угла иконки относительно
+                // её "ножки" (точки привязки).
+                iconImageOffset: [-20, -20]
+            };
+
+            if(count>100) {
+                clusterIcons.iconImageSize = [50, 50];
+                clusterIcons.iconImageOffset = [-25, -25];
+            }
+
+            let terminalNumber = 0;
+
+            if ((count/10000) >= 1) {
+                terminalNumber = Math.round(count/1000)+'т';
+            } else {
+                terminalNumber = count;
+            }
+
+
+            const clusterIconContentLayout = ymaps.templateLayoutFactory.createClass(['<div class="terminal-cluster">',
+                    '{{ properties.terminalNumber }}',
+                '</div>'].join(''));
+
+
+            const customBalloonContentLayout = ymaps.templateLayoutFactory.createClass([
+                    '<ul class="terminal-list">',
+                    '{% for geoObject in properties.geoObjects %}',
+                        '<li>{{geoObject.properties.balloonContentHeader|raw}}{{geoObject.properties.balloonContentBody|raw}}</li>',
+                    '{% endfor %}',
+                    '</ul>'
+                ].join(''));
+
+        } else {
             let terminalRelation = 'Терминал QIWI';
 
             if(type === 19) {
                 terminalRelation = 'Терминал партнеров';
             }
+
+
+        }
+
+        const  getPointData = ({ id, address, terminalRelation }) => {
+
 
             return {
                 balloonContentHeader: `<h2 class="terminal-type"><span class="terminal-type_bullet">&#9679;</span>${terminalRelation}<span class="terminal-id">ID-${id}</span></h2>`,
@@ -129,6 +186,19 @@ export default class terminalMap {
             return iconOptions;
         };
 
+
+        placemark = new ymaps.Placemark( coords, getPointData(data), getPointOptions(point.ttpId));
+
+        return placemark;
+    }
+
+    buildClusters(points = this._points) {
+
+        if (!points.length) {
+            return;
+        }
+
+
         if(!this._filters.qiwiTerminals) {
             points = points.filter((point)=>{
                 return point.ttpId === 19;
@@ -140,109 +210,29 @@ export default class terminalMap {
             });
         }
 
-        return points.map((point, index)=>{
 
-            const coords = [point.coordinate['latitude'], point.coordinate['longitude']];
 
-            const data = {
-                id: point.terminalId,
-                type: point.ttpId,
-                address: point.address
-            };
 
-            const placemark = new ymaps.Placemark( coords, getPointData(data), getPointOptions(point.ttpId));
+
+        /*const geoObjects = this._makePlacemark(points);
+
+
+       const geoObjectsLength = clusterPlacemark.getGeoObjects().length;
+
+
+
+        clusterPlacemark.properties.set('terminalNumber', terminalNumber);*/
+
+        const clusters = points.map((point, index)=>{
+
+            const placemark = this._makePlacemark(point);
 
             return placemark;
         });
 
-    }
-
-    buildClusters(points = this._points) {
-
-        if (!points.length) {
-            return;
-        }
-
-        const clusterIcons = [{
-            href: clusterIcon,
-            size: [40, 40],
-           // Отступ, чтобы центр картинки совпадал с центром кластера.
-            offset: [-20, -20],
-            shape: {
-                type: 'Circle',
-                coordinates: [0, 0],
-                radius: 20
-            }
-        },{
-            href: clusterIcon,
-            size: [50, 50],
-            offset: [-25, -25],
-            shape: {
-                type: 'Circle',
-                coordinates: [0, 0],
-                radius: 25
-            }
-        }];
-
-        const clusterNumbers = [100];
-        //определяем что написать
-        const clusterIconContentLayout = ymaps.templateLayoutFactory.createClass(['<div class="terminal-cluster">',
-                '{{ properties.terminalNumber }}',
-            '</div>'].join(''));
-
-
-        const customBalloonContentLayout = ymaps.templateLayoutFactory.createClass([
-                '<ul class="terminal-list">',
-                '{% for geoObject in properties.geoObjects %}',
-                    '<li>{{geoObject.properties.balloonContentHeader|raw}}{{geoObject.properties.balloonContentBody|raw}}</li>',
-                '{% endfor %}',
-                '</ul>'
-            ].join(''));
-
-
-        const clusterer = new ymaps.Clusterer({
-            clusterIcons,
-            clusterNumbers,
-            clusterIconContentLayout,
-            clusterBalloonMaxHeight: 200,
-            clusterBalloonContentLayout: customBalloonContentLayout,
-            groupByCoordinates: false,
-            gridSize: 256,
-            clusterDisableClickZoom: false,
-            clusterHideIconOnBalloonOpen: false,
-            geoObjectHideIconOnBalloonOpen: false
-        });
-
-
-        const geoObjects = this._makePlacemarks(points);
-
-
-        clusterer.createCluster = function (center, geoObjects) {
-            // Создаем метку-кластер с помощью стандартной реализации метода.
-            let clusterPlacemark = ymaps.Clusterer.prototype.createCluster.call(this, center, geoObjects);
-
-            const geoObjectsLength = clusterPlacemark.getGeoObjects().length;
-
-            let terminalNumber = 0;
-
-            if ((geoObjectsLength/10000) >= 1) {
-                terminalNumber = Math.round(geoObjectsLength/1000)+'т';
-            } else {
-                terminalNumber = geoObjectsLength;
-            }
-
-            clusterPlacemark.properties.set('terminalNumber', terminalNumber);
-
-            return clusterPlacemark;
-        };
-
-        clusterer.add(geoObjects);
-
-        this._clusterer = clusterer;
-
         this._mapInstance.geoObjects.removeAll();
 
-        this._mapInstance.geoObjects.add(this._clusterer);
+        this._mapInstance.geoObjects.add(clusters);
     }
 
     initMap (container, {center = this._mapParams.center, zoom = this._mapParams.zoom, ...others}) {
