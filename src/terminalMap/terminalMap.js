@@ -78,6 +78,13 @@ export default class terminalMap {
             zoom: this._mapInstance.getZoom()
         };
 
+        if(!this._filters.qiwiTerminals) {
+            params.ttpId = 19;
+        }
+        if(!this._filters.partnersTerminals) {
+            params.ttpId = 4;
+        }
+
         let url = new URL('https://edge.qiwi.com/locator/v2/nearest/clusters');
 
         Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
@@ -93,80 +100,97 @@ export default class terminalMap {
 
     _makePlacemark(point) {
 
+        const self = this;
+
         const coords = [point.coordinate['latitude'], point.coordinate['longitude']];
 
-        const data = {
-            id: point.terminalId,
-            type: point.ttpId,
-            address: point.address
-        };
+        const { terminalId, ttpId, address, count } = point;
+
+        let pointData = {};
+
+        let pointOptions = {};
 
         let placemark = {};
 
-        if(point.count > 1) {
 
-            let count = point.count;
+        if(count > 1) {
 
-            let clusterIcons = {
-                iconLayout: 'default#image',
+            const iconContentLayout = ymaps.templateLayoutFactory.createClass('<div class="terminal-cluster">{{properties.terminalNumber}}</div>');
+
+            pointOptions = {
+                iconLayout: 'default#imageWithContent',
                 // Своё изображение иконки метки.
                 iconImageHref: clusterIcon,
                 // Размеры метки.
                 iconImageSize: [40, 40],
                 // Смещение левого верхнего угла иконки относительно
                 // её "ножки" (точки привязки).
-                iconImageOffset: [-20, -20]
-            };
-
-            if(count>100) {
-                clusterIcons.iconImageSize = [50, 50];
-                clusterIcons.iconImageOffset = [-25, -25];
+                iconImageOffset: [-20, -20],
+                iconContentOffset: [0, 12],
+                iconContentLayout
             }
 
-            let terminalNumber = 0;
+            if(count>100) {
+                pointOptions.iconImageSize = [50, 50];
+                pointOptions.iconImageOffset = [-25, -25];
+                pointOptions.iconContentOffset = [5, 17];
+            }
+
+            let terminalNumber = count;
 
             if ((count/10000) >= 1) {
                 terminalNumber = Math.round(count/1000)+'т';
-            } else {
-                terminalNumber = count;
+            }
+
+            pointData = {
+                terminalNumber
+
+            };
+
+            if(this._mapInstance.getZoom() > 18) {
+
+                let terminalRelation = 'Терминал QIWI';
+
+                if(ttpId === 19) {
+                    terminalRelation = 'Терминал партнеров';
+                }
+
+
+                pointData.balloonContentHeader = `<h2 class="terminal-type"><span class="terminal-type_bullet">&#9679;</span>${terminalRelation}<span class="terminal-id">ID-${terminalId}</span></h2>`;
+
+                pointData.balloonContentBody = `<p class="terminal-adress">${address}</p><p class="terminal-more">и ещё ${count - 1}</p>`;
             }
 
 
-            const clusterIconContentLayout = ymaps.templateLayoutFactory.createClass(['<div class="terminal-cluster">',
-                    '{{ properties.terminalNumber }}',
-                '</div>'].join(''));
 
+            placemark = new ymaps.Placemark( coords, pointData, pointOptions);
 
-            const customBalloonContentLayout = ymaps.templateLayoutFactory.createClass([
-                    '<ul class="terminal-list">',
-                    '{% for geoObject in properties.geoObjects %}',
-                        '<li>{{geoObject.properties.balloonContentHeader|raw}}{{geoObject.properties.balloonContentBody|raw}}</li>',
-                    '{% endfor %}',
-                    '</ul>'
-                ].join(''));
+            if(this._mapInstance.getZoom() < 19) {
+
+                placemark.events.add('click', (e) => {
+
+                    console.log(this._mapInstance.getZoom())
+
+                    e.preventDefault();
+
+                    const coords = e.get('target').geometry.getCoordinates();
+
+                    self._mapInstance.geoObjects.removeAll();
+
+                    self._mapInstance.panTo(coords).then(() => {
+
+                        let mapZoom = self._mapInstance.getZoom();
+
+                        self._mapParams.zoom = mapZoom < 19? mapZoom+1 :self._mapParams.zoom;
+                        self._mapInstance.setZoom(self._mapParams.zoom);
+
+                    });
+                });
+            }
 
         } else {
-            let terminalRelation = 'Терминал QIWI';
 
-            if(type === 19) {
-                terminalRelation = 'Терминал партнеров';
-            }
-
-
-        }
-
-        const  getPointData = ({ id, address, terminalRelation }) => {
-
-
-            return {
-                balloonContentHeader: `<h2 class="terminal-type"><span class="terminal-type_bullet">&#9679;</span>${terminalRelation}<span class="terminal-id">ID-${id}</span></h2>`,
-                balloonContentBody: `<p class="terminal-adress">${address}</p>`
-            };
-        };
-
-        const getPointOptions = (type) => {
-
-            let iconOptions = {
+            pointOptions = {
                 // Опции.
                 // Необходимо указать данный тип макета.
                 iconLayout: 'default#image',
@@ -179,60 +203,45 @@ export default class terminalMap {
                 iconImageOffset: [-23, -54]
             };
 
-            if(type === 19){
-                iconOptions.iconImageHref = partnersTerminalPlacemark;
+            let terminalRelation = 'Терминал QIWI';
+
+            if(ttpId === 19) {
+                terminalRelation = 'Терминал партнеров';
+                pointOptions.iconImageHref = partnersTerminalPlacemark;
             }
 
-            return iconOptions;
-        };
+            pointData = {
+                balloonContentHeader: `<h2 class="terminal-type"><span class="terminal-type_bullet">&#9679;</span>${terminalRelation}<span class="terminal-id">ID-${terminalId}</span></h2>`,
+                balloonContentBody: `<p class="terminal-adress">${address}</p>`
+            }
+
+            placemark = new ymaps.Placemark( coords, pointData, pointOptions);
+
+        }
 
 
-        placemark = new ymaps.Placemark( coords, getPointData(data), getPointOptions(point.ttpId));
 
         return placemark;
     }
 
     buildClusters(points = this._points) {
 
+        const self = this;
+
         if (!points.length) {
             return;
         }
 
+        this._mapInstance.geoObjects.removeAll();
 
-        if(!this._filters.qiwiTerminals) {
-            points = points.filter((point)=>{
-                return point.ttpId === 19;
-            });
-        }
-        if(!this._filters.partnersTerminals) {
-            points = points.filter((point)=>{
-                return point.ttpId === 4;
-            });
-        }
-
-
-
-
-
-        /*const geoObjects = this._makePlacemark(points);
-
-
-       const geoObjectsLength = clusterPlacemark.getGeoObjects().length;
-
-
-
-        clusterPlacemark.properties.set('terminalNumber', terminalNumber);*/
-
-        const clusters = points.map((point, index)=>{
+        const placemarks = points.forEach((point, index)=>{
 
             const placemark = this._makePlacemark(point);
 
-            return placemark;
+            this._mapInstance.geoObjects.add(placemark);
+
         });
 
-        this._mapInstance.geoObjects.removeAll();
-
-        this._mapInstance.geoObjects.add(clusters);
     }
 
     initMap (container, {center = this._mapParams.center, zoom = this._mapParams.zoom, ...others}) {
@@ -252,23 +261,28 @@ export default class terminalMap {
         this._mapInstance.events.add('actionend', this._moveMapHandler.bind(this));
     }
 
-    async _moveMapHandler () {
+    async getAndBuild () {
+        try {
+            await this.getCluster();
+
+
+        } catch (err) {
+            console.log(err);
+
+        }
+
+        this.buildClusters();
+    }
+
+    _moveMapHandler () {
 
         const newBounds = this._mapInstance.getBounds();
 
 
-        if((newBounds[0][0]<this._bounds[0][0] && newBounds[0][1]<this._bounds[0][1]) || (newBounds[1][0]>this._bounds[1][0] && newBounds[1][1]>this._bounds[1][1])) {
+        /*if((newBounds[0][0]<this._bounds[0][0] && newBounds[0][1]<this._bounds[0][1]) || (newBounds[1][0]>this._bounds[1][0] && newBounds[1][1]>this._bounds[1][1])) {*/
 
-            try {
-                await this.getCluster();
-            } catch (err) {
-                console.log(err);
-
-            }
-
-            this.buildClusters();
-
-        }
+        this.getAndBuild();
+       /* }*/
 
     }
 

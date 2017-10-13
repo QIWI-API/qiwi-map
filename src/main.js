@@ -48,12 +48,12 @@ import terminalMap from './terminalMap';
 
     qiwiTerminalCheckbox.addEventListener('change', (e) => {
         terminalsOnMap.setQiwiTerminalsFilter(e.target.checked);
-        terminalsOnMap.buildClusters();
+        terminalsOnMap.getAndBuild();
     });
 
     partnersTerminalCheckbox.addEventListener('change', (e) => {
         terminalsOnMap.setPartnersTerminalsFilter(e.target.checked);
-        terminalsOnMap.buildClusters();
+        terminalsOnMap.getAndBuild();
     });
 
 })();
