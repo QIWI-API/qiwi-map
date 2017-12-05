@@ -5,7 +5,7 @@ const CleanWebpackPlugin = require('clean-webpack-plugin');
 
 
 module.exports = {
-    entry: ['babel-polyfill','whatwg-fetch','url-search-params','./src/main.js'],
+    entry: ['whatwg-fetch','url-search-params','./src/main.js'],
     output: {
         filename: 'bundle.js',
         path: path.resolve(__dirname, 'dist')
@@ -28,7 +28,7 @@ module.exports = {
             use: [{
                 loader: 'url-loader',
                 options: {
-                    limit: 100000
+                    limit: 8000
                 }
             }]
         }, {

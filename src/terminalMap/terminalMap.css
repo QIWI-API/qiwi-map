@@ -15,7 +15,14 @@
     font-size: 19px;
     font-family: "MuseoSansLight";
     max-width: 260px;
-    margin: 7px 10px 30px 30px;
+    margin: 7px 10px 5px 30px;
+}
+
+.terminal-more {
+    font-size: 14px;
+    font-family: "MuseoSansLight";
+    max-width: 260px;
+    margin: 7px 10px 25px 30px;
 }
 
 
@@ -35,6 +42,9 @@
 .terminal-cluster {
     font-family: 'MuseoSansRegular';
     color: #FFF;
+    text-align: center;
+    width: 40px;
+    margin: 0 auto;
 }
 
 
@@ -49,7 +59,13 @@
     .terminal-adress {
         font-size: 18px;
         max-width: 250px;
-        margin: 7px 0 30px 12px;
+        margin: 7px 0 5px 12px;
+    }
+
+    .terminal-more {
+        font-size: 13px;
+        max-width: 250px;
+        margin: 5px 0 25px 12px;
     }
 
     .terminal-id {
