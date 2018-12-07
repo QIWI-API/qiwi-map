@@ -5,7 +5,7 @@
 
 ### Сборка приложения 
 ~~~shell
-git clone https://github.com/QIWI-API/qiwi-map-application.git
+git clone https://github.com/QIWI-API/qiwi-map.git
 cd qiwi-map
 npm install
 npm run build
@@ -19,7 +19,7 @@ npm run build
 
 ### Пример использования
 ~~~html
-<iframe src="https://www.your-site.com/path-to-map-index" width="100%" height="780" style="border:none;"></iframe>
+<iframe src="https://www.your-site.com/path-to-map-index" width="100%" height="795" style="border:none;"></iframe>
 ~~~
 
 Можно посмотреть живой пример: 
