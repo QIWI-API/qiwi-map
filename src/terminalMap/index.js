@@ -1,3 +1,3 @@
-import terminalMap from './terminalMap.js';
+import TerminalMap from './TerminalMap';
 
-export default terminalMap;
+export default TerminalMap;
