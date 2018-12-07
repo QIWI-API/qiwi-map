@@ -5,7 +5,7 @@ import './styles.css';
 
 import { getCluster } from '../../lib/api';
 import getUserLocation from '../../lib/userLocation';
-import { loadYmaps } from '../../lib/ymaps';
+import { loadYmaps, mapInstance, initMap, ymaps } from '../../lib/ymaps';
 
 import clusterIcon from './assets/cluster-icon.svg';
 
@@ -24,16 +24,16 @@ export default class TerminalMap extends Component {
 
         this.points = [];
         this.bounds = [];
-
-        this.mapInstance = null;
-        this.ymaps = null;
     }
 
     async componentDidMount() {
         try {
-            await this.getMap(this.props.mapUrl);
+            await loadYmaps(this.props.mapUrl);
 
-            this.initMap(this.mapContainer, { ...this.mapOptions, ...this.mapParams});
+            initMap(this.mapContainer, {
+                ...this.mapOptions,
+                ...this.mapParams
+            });
 
             await this.getUserLocation();
 
@@ -48,17 +48,9 @@ export default class TerminalMap extends Component {
     }
 
     componentWillUpdate(nextProps) {
-        if (this.mapInstance) {
+        if (mapInstance) {
             this.getAndBuild(nextProps.filterParams);
         }
-    }
-
-    initMap(container, options) {
-        this.mapInstance = new this.ymaps.Map(container, options);
-    }
-
-    async getMap(url) {
-        await loadYmaps(url).then((map) => (this.ymaps = map));
     }
 
     async getUserLocation() {
@@ -68,7 +60,7 @@ export default class TerminalMap extends Component {
                 position.coords.longitude
             ];
 
-            this.mapInstance.setCenter(this.mapParams.center);
+            mapInstance.setCenter(this.mapParams.center);
         });
     }
 
@@ -81,23 +73,21 @@ export default class TerminalMap extends Component {
     }
 
     makeRequestUrl = (filterParams = {}) => {
-        this.bounds = this.mapInstance.getBounds();
+        this.bounds = mapInstance.getBounds();
 
         const params = {
             latNW: this.bounds[1][0],
             latSE: this.bounds[0][0],
             lngNW: this.bounds[0][1],
             lngSE: this.bounds[1][1],
-            zoom: this.mapInstance.getZoom(),
+            zoom: mapInstance.getZoom(),
             ...filterParams
         };
 
         return queryString.stringify(params, { arrayFormat: 'index' });
     };
 
-    makePlacemark(point) {
-        const self = this;
-
+    makePlacemark = (point) => {
         const coords = [point.coordinate.latitude, point.coordinate.longitude];
 
         const { terminalId, ttpId, address, count } = point;
@@ -109,7 +99,7 @@ export default class TerminalMap extends Component {
         let placemark = {};
 
         if (count > 1) {
-            const iconContentLayout = this.ymaps.templateLayoutFactory.createClass(
+            const iconContentLayout = ymaps.templateLayoutFactory.createClass(
                 '<div class="map__cluster">{{properties.terminalNumber}}</div>'
             );
 
@@ -142,7 +132,7 @@ export default class TerminalMap extends Component {
                 terminalNumber
             };
 
-            if (this.mapInstance.getZoom() > 18) {
+            if (mapInstance.getZoom() > 18) {
                 let terminalRelation = 'Терминал QIWI';
 
                 if (ttpId === 19) {
@@ -155,26 +145,26 @@ export default class TerminalMap extends Component {
                     1}</p>`;
             }
 
-            placemark = new this.ymaps.Placemark(
+            placemark = new ymaps.Placemark(
                 coords,
                 pointData,
                 pointOptions
             );
 
-            if (this.mapInstance.getZoom() < 19) {
+            if (mapInstance.getZoom() < 19) {
                 placemark.events.add('click', (e) => {
                     e.preventDefault();
 
                     const newCoords = e.get('target').geometry.getCoordinates();
 
-                    self.this.mapInstance.geoObjects.removeAll();
+                    mapInstance.geoObjects.removeAll();
 
-                    self.this.mapInstance.panTo(newCoords).then(() => {
-                        const mapZoom = self.this.mapInstance.getZoom();
+                    mapInstance.panTo(newCoords).then(() => {
+                        const mapZoom = mapInstance.getZoom();
 
-                        self.mapParams.zoom =
-                            mapZoom < 19 ? mapZoom + 1 : self.mapParams.zoom;
-                        self.this.mapInstance.setZoom(self.mapParams.zoom);
+                        this.mapParams.zoom =
+                            mapZoom < 19 ? mapZoom + 1 : this.mapParams.zoom;
+                        mapInstance.setZoom(this.mapParams.zoom);
                     });
                 });
             }
@@ -204,7 +194,7 @@ export default class TerminalMap extends Component {
                 balloonContentBody: `<p class="map__adress">${address}</p>`
             };
 
-            placemark = new this.ymaps.Placemark(
+            placemark = new ymaps.Placemark(
                 coords,
                 pointData,
                 pointOptions
@@ -219,20 +209,17 @@ export default class TerminalMap extends Component {
             return;
         }
 
-        this.mapInstance.geoObjects.removeAll();
+        mapInstance.geoObjects.removeAll();
 
         points.forEach((point) => {
             const placemark = this.makePlacemark(point);
 
-            this.mapInstance.geoObjects.add(placemark);
+            mapInstance.geoObjects.add(placemark);
         });
     };
 
     setHandler() {
-        this.mapInstance.events.add(
-            'actionend',
-            this.moveMapHandler.bind(this)
-        );
+        mapInstance.events.add('actionend', this.moveMapHandler);
     }
 
     async getAndBuild(params) {
@@ -245,8 +232,8 @@ export default class TerminalMap extends Component {
         this.buildClusters();
     }
 
-    moveMapHandler() {
-        /* const newBounds = this.mapInstance.getBounds(); */
+    moveMapHandler = () => {
+        /* const newBounds = mapInstance.getBounds(); */
 
         /* if((newBounds[0][0]<this.bounds[0][0] && newBounds[0][1]<this.bounds[0][1]) ||
          (newBounds[1][0]>this.bounds[1][0] && newBounds[1][1]>this.bounds[1][1])) { */

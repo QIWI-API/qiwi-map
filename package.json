@@ -1,15 +1,14 @@
 {
   "name": "qiwi-terminal-map",
-  "version": "2.1.3",
-  "description": "",
-  "main": "app.js",
+  "version": "2.2.1",
+  "description": "Map of QIWI terminals",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint src/**/**.js --fix",
     "start": "webpack-dev-server",
     "build": "rimraf dist && NODE_ENV=production webpack --config webpack.prod.config.js --mode production"
   },
-  "author": "",
+  "author": "Maxim Kuznetsov (https://github.com/secondtonone)",
   "license": "MIT",
   "devDependencies": {
     "@babel/cli": "^7.1.5",
