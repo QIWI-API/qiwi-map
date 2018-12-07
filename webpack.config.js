@@ -2,56 +2,55 @@ const path = require('path');
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
-
 module.exports = {
+    mode: 'development',
     devtool: 'eval-source-map',
-    entry: ['babel-polyfill','whatwg-fetch','url-search-params','./src/main.js'],
+    entry: ['whatwg-fetch', './src/App.js'],
     output: {
         filename: 'bundle.js',
         path: path.resolve(__dirname, 'dist')
     },
     module: {
-        rules: [{
-            test: /.js?$/,
-            use: [
-                'babel-loader'
-            ],
-            exclude: /node_modules/
-        },{
-            test: /\.css$/,
-            use: [
-                'style-loader',
-                'css-loader'
-            ]
-        }, {
-            test: /\.(png|svg|jpg|gif|woff|woff2)$/,
-            use: [{
-                loader: 'url-loader',
-                options: {
-                    limit: 100000
-                }
-            }]
-        }, {
-            test: /\.(eot|ttf|otf)$/,
-            use: [
-                'file-loader'
-            ]
-        },{
-            test: /\.json$/,
-            loader: 'json-loader'
-        }]
+        rules: [
+            {
+                test: /.js?$/,
+                use: ['babel-loader', 'eslint-loader'],
+                exclude: /node_modules/
+            },
+            {
+                test: /\.css$/,
+                use: ['style-loader', 'css-loader']
+            },
+            {
+                test: /\.(png|svg|jpg|gif|woff|woff2)$/,
+                use: [
+                    {
+                        loader: 'url-loader',
+                        options: {
+                            limit: 100000
+                        }
+                    }
+                ]
+            },
+            {
+                test: /\.(eot|ttf|otf)$/,
+                use: ['file-loader']
+            }
+        ]
+    },
+    resolve: {
+        extensions: ['.js', '.json']
     },
     plugins: [
         new webpack.HotModuleReplacementPlugin(),
         new webpack.DefinePlugin({
             'process.env': {
-                'NODE_ENV': JSON.stringify('development')
+                NODE_ENV: JSON.stringify('development')
             }
         }),
-        new webpack.NamedModulesPlugin(),
         new HtmlWebpackPlugin({
-            template: './src/index.html',
-            inject: 'body',
+            template: './public/index.html',
+            inject: 'body'
         })
     ],
     devServer: {

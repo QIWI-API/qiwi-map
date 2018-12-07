@@ -1,0 +1,95 @@
+.ymaps-2-1-53-balloon, .ymaps-2-1-53-balloon__tail, .ymaps-2-1-53-balloon__content, .ymaps-2-1-53-balloon__layout {
+    border-radius: 5px;
+}
+
+.map {
+    width: 100%;
+    height: 680px;
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, .25);
+    overflow: hidden;
+}
+
+.map__cluster {
+    font-family: 'MuseoSans';
+    font-weight: 500;
+    color: #FFF;
+    text-align: center;
+    width: 40px;
+    margin: 0 auto;
+}
+
+.map__type {
+    font-family: "MuseoSans";
+    font-weight: 700;
+    font-size: 14px;
+    margin: 22px 0 0 30px;
+}
+
+.map__id {
+    font-size: 14px;
+    font-family: "MuseoSans";
+    font-weight: 300;
+    margin-left: 14px;
+    color: #575757;
+}
+
+.map__adress {
+    font-size: 19px;
+    font-family: "MuseoSans";
+    font-weight: 300;
+    max-width: 260px;
+    margin: 7px 10px 5px 30px;
+}
+
+.map__more {
+    font-size: 14px;
+    font-family: "MuseoSans";
+    font-weight: 300;
+    max-width: 260px;
+    margin: 7px 10px 25px 30px;
+}
+
+.map__type_bullet {
+    color: #FF8C00;
+    font-size: 26px;
+    margin-right: 12px;
+    vertical-align: sub;
+}
+
+.map__list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+
+@media (max-width: 500px) {
+    .map__type {
+        font-size: 13px;
+        margin: 12px 0 0 12px;
+    }
+    .map__adress {
+        font-size: 18px;
+        max-width: 250px;
+        margin: 7px 0 5px 12px;
+    }
+    .map__more {
+        font-size: 13px;
+        max-width: 250px;
+        margin: 5px 0 25px 12px;
+    }
+    .map__id {
+        font-size: 13px;
+        margin-left: 10px;
+    }
+
+    .map {
+        height: 350px;
+        border-radius: 0;
+    }
+    .ymaps-2-1-53-balloon, .ymaps-2-1-53-balloon__tail, .ymaps-2-1-53-balloon__content, .ymaps-2-1-53-balloon__layout {
+        border-radius: 0;
+    }
+}

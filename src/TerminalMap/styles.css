@@ -1,0 +1,62 @@
+.terminal-map {
+    padding: 30px 90px 30px;
+}
+
+.terminal-map__panel {
+    margin: 0 0 25px;
+    position: relative;
+}
+
+.terminal-map__container {
+    border-radius: 10px;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, .25);
+    overflow: hidden;
+    display: flex;
+}
+
+@media (max-width: 700px) {
+    .terminal-map__container {
+        flex-flow: column;
+    }
+}
+
+.terminal-map__title {
+    font-family: "MuseoSans";
+    font-weight: 900;
+    font-size: 26px;
+    margin: 0;
+    padding: 0;
+    text-align: left;
+}
+
+.terminal-map__title--mobile {
+    display: none;
+    text-align: center;
+    font-family: "MuseoSans";
+    font-weight: 900;
+    margin: 10px 0 16px;
+    font-size: 26px;
+}
+
+
+@media (max-width: 1140px) {
+    .terminal-map {
+        padding: 30px;
+    }
+}
+
+@media (max-width: 500px) {
+    .terminal-map__container {
+        border-radius: 0;
+    }
+
+    .terminal-map {
+        padding: 0;
+    }
+    .terminal-map__title--mobile {
+        display: block;
+    }
+    .terminal-map__title {
+        display: none;
+    }
+}
