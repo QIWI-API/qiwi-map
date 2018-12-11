@@ -1,6 +1,6 @@
 {
   "name": "qiwi-terminal-map",
-  "version": "2.2.1",
+  "version": "2.3.1",
   "description": "Map of QIWI terminals",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
