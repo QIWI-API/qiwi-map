@@ -1,6 +1,5 @@
 let promise = null;
 
-export let mapInstance = null;
 export let ymaps = null;
 
 export function loadYmaps(src = '//api-maps.yandex.ru/2.1/?lang=en_RU') {
@@ -19,5 +18,5 @@ export function loadYmaps(src = '//api-maps.yandex.ru/2.1/?lang=en_RU') {
 }
 
 export function initMap(container, options) {
-    mapInstance = new ymaps.Map(container, options);
+    return new ymaps.Map(container, options);
 }

@@ -5,7 +5,7 @@ import './styles.css';
 
 import { getCluster } from '../../lib/api';
 import getUserLocation from '../../lib/userLocation';
-import { loadYmaps, mapInstance, initMap, ymaps } from '../../lib/ymaps';
+import { loadYmaps, initMap, ymaps } from '../../lib/ymaps';
 
 import clusterIcon from './assets/cluster-icon.svg';
 
@@ -22,6 +22,8 @@ export default class TerminalMap extends Component {
 
         this.mapParams = props.mapParams;
 
+        this.mapInstance = null;
+
         this.points = [];
         this.bounds = [];
     }
@@ -30,7 +32,7 @@ export default class TerminalMap extends Component {
         try {
             await loadYmaps(this.props.mapUrl);
 
-            initMap(this.mapContainer, {
+            this.mapInstance = initMap(this.mapContainer, {
                 ...this.mapOptions,
                 ...this.mapParams
             });
@@ -48,7 +50,7 @@ export default class TerminalMap extends Component {
     }
 
     componentWillUpdate(nextProps) {
-        if (mapInstance) {
+        if (this.mapInstance) {
             this.getAndBuild(nextProps.filterParams);
         }
     }
@@ -60,7 +62,7 @@ export default class TerminalMap extends Component {
                 position.coords.longitude
             ];
 
-            mapInstance.setCenter(this.mapParams.center);
+            this.mapInstance.setCenter(this.mapParams.center);
         });
     }
 
@@ -73,14 +75,14 @@ export default class TerminalMap extends Component {
     }
 
     makeRequestUrl = (filterParams = {}) => {
-        this.bounds = mapInstance.getBounds();
+        this.bounds = this.mapInstance.getBounds();
 
         const params = {
             latNW: this.bounds[1][0],
             latSE: this.bounds[0][0],
             lngNW: this.bounds[0][1],
             lngSE: this.bounds[1][1],
-            zoom: mapInstance.getZoom(),
+            zoom: this.mapInstance.getZoom(),
             ...filterParams
         };
 
@@ -132,7 +134,7 @@ export default class TerminalMap extends Component {
                 terminalNumber
             };
 
-            if (mapInstance.getZoom() > 18) {
+            if (this.mapInstance.getZoom() > 18) {
                 let terminalRelation = 'Терминал QIWI';
 
                 if (ttpId === 19) {
@@ -145,26 +147,22 @@ export default class TerminalMap extends Component {
                     1}</p>`;
             }
 
-            placemark = new ymaps.Placemark(
-                coords,
-                pointData,
-                pointOptions
-            );
+            placemark = new ymaps.Placemark(coords, pointData, pointOptions);
 
-            if (mapInstance.getZoom() < 19) {
+            if (this.mapInstance.getZoom() < 19) {
                 placemark.events.add('click', (e) => {
                     e.preventDefault();
 
                     const newCoords = e.get('target').geometry.getCoordinates();
 
-                    mapInstance.geoObjects.removeAll();
+                    this.mapInstance.geoObjects.removeAll();
 
-                    mapInstance.panTo(newCoords).then(() => {
-                        const mapZoom = mapInstance.getZoom();
+                    this.mapInstance.panTo(newCoords).then(() => {
+                        const mapZoom = this.mapInstance.getZoom();
 
                         this.mapParams.zoom =
                             mapZoom < 19 ? mapZoom + 1 : this.mapParams.zoom;
-                        mapInstance.setZoom(this.mapParams.zoom);
+                        this.mapInstance.setZoom(this.mapParams.zoom);
                     });
                 });
             }
@@ -194,32 +192,28 @@ export default class TerminalMap extends Component {
                 balloonContentBody: `<p class="map__adress">${address}</p>`
             };
 
-            placemark = new ymaps.Placemark(
-                coords,
-                pointData,
-                pointOptions
-            );
+            placemark = new ymaps.Placemark(coords, pointData, pointOptions);
         }
 
         return placemark;
-    }
+    };
 
     buildClusters = (points = this.points) => {
         if (!points.length) {
             return;
         }
 
-        mapInstance.geoObjects.removeAll();
+        this.mapInstance.geoObjects.removeAll();
 
         points.forEach((point) => {
             const placemark = this.makePlacemark(point);
 
-            mapInstance.geoObjects.add(placemark);
+            this.mapInstance.geoObjects.add(placemark);
         });
     };
 
     setHandler() {
-        mapInstance.events.add('actionend', this.moveMapHandler);
+        this.mapInstance.events.add('actionend', this.moveMapHandler);
     }
 
     async getAndBuild(params) {
@@ -233,14 +227,14 @@ export default class TerminalMap extends Component {
     }
 
     moveMapHandler = () => {
-        /* const newBounds = mapInstance.getBounds(); */
+        /* const newBounds = this.mapInstance.getBounds(); */
 
         /* if((newBounds[0][0]<this.bounds[0][0] && newBounds[0][1]<this.bounds[0][1]) ||
          (newBounds[1][0]>this.bounds[1][0] && newBounds[1][1]>this.bounds[1][1])) { */
 
         this.getAndBuild();
         /* } */
-    }
+    };
 
     render() {
         return html`
