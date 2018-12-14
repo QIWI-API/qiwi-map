@@ -5,7 +5,8 @@ const TerserPlugin = require('terser-webpack-plugin');
 
 module.exports = {
     mode: 'production',
-    entry: ['whatwg-fetch', './src/App.js'],
+    context: path.resolve(__dirname, 'src'),
+    entry: ['whatwg-fetch', './App.js'],
     output: {
         path: path.resolve(__dirname, 'dist'),
         filename: '[name].[hash].js'
@@ -62,7 +63,7 @@ module.exports = {
             }
         }),
         new HtmlWebpackPlugin({
-            template: './public/index.html',
+            template: '../public/index.html',
             inject: 'body',
             minify: {
                 minifyCSS: true,

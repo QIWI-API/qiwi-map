@@ -5,7 +5,8 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 module.exports = {
     mode: 'development',
     devtool: 'eval-source-map',
-    entry: ['whatwg-fetch', './src/App.js'],
+    context: path.resolve(__dirname, 'src'),
+    entry: ['whatwg-fetch', './App.js'],
     output: {
         filename: 'bundle.js',
         path: path.resolve(__dirname, 'dist')
@@ -49,7 +50,7 @@ module.exports = {
             }
         }),
         new HtmlWebpackPlugin({
-            template: './public/index.html',
+            template: '../public/index.html',
             inject: 'body'
         })
     ],

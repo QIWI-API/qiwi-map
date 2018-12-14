@@ -1,6 +1,4 @@
-/* global document */
 import { html, render } from 'htm/preact/standalone';
-// import renderToString from 'preact-render-to-string';
 
 import './styles/styles.css';
 
@@ -16,8 +14,6 @@ const mapParams = {
     center: [55.76, 37.64],
     zoom: 12
 };
-
-// renderToString(html`<${TerminalMap} />`);
 
 render(
     html`<${TerminalMap} mapUrl=${mapUrl} mapOptions=${mapOptions} mapParams=${mapParams} />`,
