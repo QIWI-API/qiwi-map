@@ -1,5 +1,3 @@
-/* global fetch */
-
 export function getGroups() {
     return fetch('https://edge.qiwi.com/locator/v3/ttp-groups', {
         method: 'GET'

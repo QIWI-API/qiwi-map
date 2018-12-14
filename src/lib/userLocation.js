@@ -1,4 +1,3 @@
-/* global navigator */
 export default function getUserLocation(cb) {
     return new Promise((resolve) => {
         if ('geolocation' in navigator) {
